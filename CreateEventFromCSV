@@ -1,0 +1,32 @@
+import csv
+from waapi import WaapiClient
+    
+#Ask user for CSV file path
+csv_file_path = input("Please enter the path to the CSV file :") 
+
+#Connect to WAAPI
+with WaapiClient() as client:
+    print("Connected to WAAPI server")
+    #Read CSV file
+    with open(csv_file_path, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        header = next(csvreader)
+            #Assuming the CSV has columns: name, path
+        for row in csvreader:
+            name = row[0]
+            path = row[1]
+            result = client.call("ak.wwise.core.object.create",
+                                 {
+                                     "type": "Event",
+                                     "name": name,
+                                     "parent": path
+                                 })
+            print(f"Event '{name}' created at path '{path}'")
+
+
+
+   
+
+
+
+
