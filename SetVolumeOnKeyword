@@ -1,22 +1,27 @@
 from waapi import WaapiClient
 
+#Ask the user for the keyword and volume level
 keyword = input("Enter the keyword to search for : ")
 volume = input("Enter the volume level in dB (-96 to +12) : ")
 
 with WaapiClient() as client: 
+    #Define query
     query = {
         "from": {"ofType": ["Sound"]},
         "options": {"return": ["id", "name"]}
     }
     result = client.call("ak.wwise.core.object.get", query)
     
+    #Check if any objects were found
     if result :
         objects = result["return"]
-
+        
+        #Filter objects by keyword
         keyword_objects = [obj for obj in objects if keyword.lower() in obj["name"].lower()]
         
         print(f"{len(keyword_objects)} objects found containing the keyword '{keyword}'.")
 
+        #Set the volume for each object found
         for obj in keyword_objects:
             object_id = obj["id"]
             client.call("ak.wwise.core.object.setProperty", {
