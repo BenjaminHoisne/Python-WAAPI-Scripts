@@ -1,32 +1,75 @@
 import csv
 from waapi import WaapiClient
-    
-#Ask user for CSV file path
-csv_file_path = input("Please enter the path to the CSV file :") 
+import os
+import logging
 
-#Connect to WAAPI
+logging.getLogger("WampClientAutobahn").setLevel(logging.CRITICAL)
+
+def ensure_path_exists(client, full_path):
+    parts = full_path.strip("\\").split("\\")
+    current_path = "\\"
+    
+    for i, part in enumerate(parts):
+        current_path = os.path.join(current_path, part)
+
+        #Ignore the first part if it is "Events"
+        if i == 0 and part.lower() == "events":
+            continue
+
+        #Check if the object already exists
+        try:
+            exists = client.call("ak.wwise.core.object.get", {
+                "from": {"path": [current_path]}
+            })
+            if exists and exists.get("return"):
+                continue
+        except Exception as e:
+            if "ak.wwise.query.unknown_object" in str(e):
+             print(f"Path not found (will create): {current_path}")
+            else:
+                raise
+
+        #Determine the type of object to create
+        if i == 1:
+            obj_type = "WorkUnit"
+            parent_path = "\\" + "\\".join(parts[:i])
+        else:
+            obj_type = "Folder"
+            parent_path = "\\" + "\\".join(parts[:i])
+
+        #Create the object
+        result = client.call("ak.wwise.core.object.create", {
+            "type": obj_type,
+            "name": part,
+            "parent": parent_path
+        })
+        print(f"Created {obj_type}: {part} at {parent_path}")
+
+#Ask the user for the CSV file path
+csv_file_path = input("Please enter the path to the CSV file: ")
+
 with WaapiClient() as client:
-    print("Connected to WAAPI server")
-    #Read CSV file
-    with open(csv_file_path, 'r') as csvfile:
+    print("Connected to WAAPI server.")
+    #Read the CSV file
+    with open(csv_file_path, 'r', encoding='utf-8-sig') as csvfile:
         csvreader = csv.reader(csvfile)
         header = next(csvreader)
-            #Assuming the CSV has columns: name, path
+
         for row in csvreader:
-            name = row[0]
-            path = row[1]
-            result = client.call("ak.wwise.core.object.create",
-                                 {
-                                     "type": "Event",
-                                     "name": name,
-                                     "parent": path
-                                 })
-            print(f"Event '{name}' created at path '{path}'")
+            if len(row) < 2:
+                continue 
+            name = row[0].strip()
+            path = row[1].strip()
 
+            ensure_path_exists(client, path)  
 
-
-   
-
-
-
-
+            #Create the event 
+            try:
+                result = client.call("ak.wwise.core.object.create", {
+                    "type": "Event",
+                    "name": name,
+                    "parent": path
+                })
+                print(f"Created event '{name}' at path '{path}'")
+            except Exception as e:
+                print(f"Failed to create event '{name}' at path '{path}'")
