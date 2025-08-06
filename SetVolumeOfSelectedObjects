@@ -1,0 +1,20 @@
+from waapi import WaapiClient
+
+with WaapiClient() as client:
+    print("Connected to WAAPI server.")
+    #Get the selected objects from Wwise
+    selected_objects = client.call("ak.wwise.ui.getSelectedObjects")
+    selected_objects = selected_objects.get("objects", [])
+    volume = input("Enter the volume level in dB (-96 to +12): ")
+    if not selected_objects :
+        print("No objects selected.")
+    else:
+        #Set the volume for each selected object
+        for obj in selected_objects:
+            object_id = obj["id"]
+            if object_id : 
+                client.call("ak.wwise.core.object.setProperty", {
+                        "object": object_id, 
+                        "property": "Volume", 
+                        "value": volume
+                    })
