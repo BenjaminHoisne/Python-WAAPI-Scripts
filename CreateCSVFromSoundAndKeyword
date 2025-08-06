@@ -1,0 +1,33 @@
+import csv
+import os
+from waapi import WaapiClient
+
+with WaapiClient() as client:
+    print("Connected to WAAPI server.")
+
+    #Ask the user for the path to create CSV file and a keyword to look for
+    keyword = input("Enter the keyword to search for: ")
+    csv_file_path = input("Please enter the path to save the CSV file: ")
+
+    #Define the query and get the objects 
+    query = {
+        "from": {"ofType": ["Sound"]},
+        "options": {"return": ["name", "id", "path", "volume"]}
+    }
+    result = client.call("ak.wwise.core.object.get", query)
+
+    #Check if any objects were found
+    if result :
+        objects = result["return"]
+
+        #Filter objects by keyword
+        keyword_objects = [obj for obj in objects if keyword.lower() in obj["name"].lower()]
+        print(f"{len(keyword_objects)} objects found containing the keyword '{keyword}'.")
+
+        #Write the results to a CSV file
+        with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(['Name', 'id', 'Path', 'Volume'])
+            for obj in keyword_objects:
+                csvwriter.writerow([obj["name"], obj["id"], obj["path"], obj["volume"]])
+
