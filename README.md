@@ -3,7 +3,7 @@
 Collection of python scripts using WAAPI to automate common tasks in Wwise project.
 These tools help speed up workflows such as event creation, volume adjustment, and project auditing.
 
-##Scripts
+## Scripts
 
 ### CreateEventFromCSV  
 - **Description**: Create Wwise events from a CSV file.
