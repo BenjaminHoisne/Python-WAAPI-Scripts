@@ -1,0 +1,28 @@
+from waapi import WaapiClient
+import csv
+
+object_type = input("Enter the type of objects to audit: ")
+
+def get_objects_of_type(client, object_type):
+    query = {
+            "from": {"ofType": [object_type]},
+            "options": {
+                "return": ["id", "name", "path", "type", "childrenCount", "parent", "duration"]
+            }
+        }
+    result = client.call("ak.wwise.core.object.get", query)
+    return result.get("return", [])
+
+with WaapiClient() as client:
+    objects = get_objects_of_type(client, object_type)
+
+    csv_file_path = input("Enter the path for the CSV file : ")
+
+    with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["id", "name", "path", "type", "childrenCount", "parent", "duration"])
+
+        for obj in objects:
+            csvwriter.writerow([
+                obj.get("id", ""), obj.get("name", ""), obj.get("path", ""), obj.get("type", ""), obj.get("childrenCount", ""), obj.get("parent", {}).get("name", "") if obj.get("parent") else "", obj.get("duration","")
+            ])
