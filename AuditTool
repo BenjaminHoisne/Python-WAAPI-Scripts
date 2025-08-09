@@ -3,6 +3,7 @@ import csv
 
 object_type = input("Enter the type of objects to audit: ")
 
+# Function to get all the objects of a determined type and the data associated.
 def get_objects_of_type(client, object_type):
     query = {
             "from": {"ofType": [object_type]},
@@ -16,8 +17,10 @@ def get_objects_of_type(client, object_type):
 with WaapiClient() as client:
     objects = get_objects_of_type(client, object_type)
 
+    # Ask the user for the path of the CSV file.
     csv_file_path = input("Enter the path for the CSV file : ")
 
+    # Write the data in the CSV file.
     with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(["id", "name", "path", "type", "childrenCount", "parent", "duration"])
