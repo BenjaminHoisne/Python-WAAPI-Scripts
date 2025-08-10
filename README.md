@@ -7,7 +7,7 @@ These tools help speed up workflows such as event creation, volume adjustment, a
 
 ### CreateEventFromCSV  
 - **Description**: Create Wwise events from a CSV file.
-- **CSV Format**: Two columns - `name`, `path` (e.g., `Event_Play_Footstep`, `\Events\Footsteps\`)
+- **CSV Format**: Two columns - `name`, `path` (e.g., `Play_Footstep`, `\Default Work Unit\Footsteps\`)
 - **Usage**: Runs the script, loads the CSV file, and creates events at the specified locations. It also creates the hierarchy in Wwise if necessary.
 
 ### SetVolumeOnSelectedObjects
