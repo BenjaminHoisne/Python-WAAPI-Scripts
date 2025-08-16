@@ -17,17 +17,12 @@ def ensure_path_exists(client, full_path):
             continue
 
         #Check if the object already exists
-        try:
-            exists = client.call("ak.wwise.core.object.get", {
+        exists = client.call("ak.wwise.core.object.get", {
                 "from": {"path": [current_path]}
             })
-            if exists and exists.get("return"):
+        if exists and exists.get("return"):
                 continue
-        except Exception as e:
-            if "ak.wwise.query.unknown_object" in str(e):
-             print(f"Path not found (will create): {current_path}")
-            else:
-                raise
+       
 
         #Determine the type of object to create
         if i == 1:
